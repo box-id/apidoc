@@ -1,5 +1,9 @@
 # apiDoc Changelog
 
+### 0.55.1 (Fork by box-id)
+
+- Optimized template for a better search and oder by group title
+
 ### 0.54.1 (Fork by box-id)
 
 - Updated elixir block parser to use the old format by wrapping the doc with `@apidocs """ ... """`

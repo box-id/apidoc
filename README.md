@@ -9,7 +9,8 @@ apiDoc creates a documentation from API descriptions in your source code.
 
 ### [BOX-ID](https://github.com/box-id) Fork Changes
 
-- Updated elixir block parser to use the old format by wrapping the doc with `@apidocs """ ... """`
+- Updated elixir block parser to use the old format by wrapping the doc with `@apidocs """ ... """`; version: `0.54.1`
+- Optimized template for a better search and oder by group title; version: `0.55.1`
 
 ### Documentation: [apidocjs.com](http://apidocjs.com)
 
