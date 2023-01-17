@@ -1,5 +1,9 @@
 # apiDoc Changelog
 
+### 0.56.0 (Fork by box-id)
+
+- Added simple function to search by multiple elements with a +
+
 ### 0.55.1 (Fork by box-id)
 
 - Optimized template for a better search and oder by group title

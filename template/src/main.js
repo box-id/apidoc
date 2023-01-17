@@ -596,13 +596,23 @@ function init() {
   /**
    * Filter search
    */
+  function isMatching(navEl, query) {
+    return navEl.isHeader || navEl.group.toLowerCase().includes(query) || navEl.name.toLowerCase().includes(query) || navEl.title.toLowerCase().includes(query);
+  }
   $('[data-action="filter-search"]').on('keyup', event => {
-    const query = event.currentTarget.value.toLowerCase();
+    const query = event.currentTarget.value;
+
+    const queryElements = query.split('+').map(queryEl => {
+      return queryEl.trim().toLowerCase();
+    }).filter((queryEl) => queryEl.length);
 
     // templateSidenavList(fields)
     const groupIndex = {};
+
     const filteredNav = nav.filter((navEl) => {
-      return navEl.isHeader || navEl.group.toLowerCase().includes(query) || navEl.name.toLowerCase().includes(query) || navEl.title.toLowerCase().includes(query);
+      return queryElements.every((query) => {
+        return isMatching(navEl, query);
+      });
     }).reduce((acc, navEl) => {
       if (navEl.isHeader) {
         groupIndex[navEl.group] = navEl;
