@@ -7,6 +7,10 @@ apiDoc creates a documentation from API descriptions in your source code.
 [![NPM version](https://badge.fury.io/js/apidoc.svg)](http://badge.fury.io/js/apidoc)
 [![Join the chat at https://gitter.im/apidoc/talk](https://badges.gitter.im/apidoc/talk.svg)](https://gitter.im/apidoc/talk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+### [BOX-ID](https://github.com/box-id) Fork Changes
+
+- Updated elixir block parser to use the old format by wrapping the doc with `@apidocs """ ... """`
+
 ### Documentation: [apidocjs.com](http://apidocjs.com)
 
 ### [Live DEMO](http://apidocjs.com/example/)
@@ -54,22 +58,22 @@ $ $BROWSER /tmp/doc
 You can generate the documentation programmatically:
 
 ```ts
-import path from 'path'
-import { createDoc } from 'apidoc'
+import path from "path";
+import { createDoc } from "apidoc";
 
 const doc = createDoc({
-  src: path.resolve(__dirname, 'src'),
-  dest: path.resolve(__dirname, 'doc'), // can be omitted if dryRun is true
+  src: path.resolve(__dirname, "src"),
+  dest: path.resolve(__dirname, "doc"), // can be omitted if dryRun is true
   // if you don't want to generate the output files:
   dryRun: true,
   // if you don't want to see any log output:
   silent: true,
-})
+});
 
-if (typeof doc !== 'boolean') {
+if (typeof doc !== "boolean") {
   // Documentation was generated!
-  console.log(doc.data) // the parsed api documentation object
-  console.log(doc.project) // the project information
+  console.log(doc.data); // the parsed api documentation object
+  console.log(doc.project); // the project information
 }
 ```
 
@@ -83,90 +87,90 @@ $ npm install -D @types/apidoc
 
 You can use apidoc in Docker like this:
 
-~~~bash
+```bash
 # first build the image after cloning this repository
 docker build -t apidoc/apidoc .
 # run it
 docker run --rm -v $(pwd):/home/node/apidoc apidoc/apidoc -o outputdir -i inputdir
-~~~
+```
 
 ## Supported programming languages
 
- * **C#, Go, Dart, Java, JavaScript, PHP, Scala** (all DocStyle capable languages):
+- **C#, Go, Dart, Java, JavaScript, PHP, Scala** (all DocStyle capable languages):
 
-   ```javascript
-   /**
-     * This is a comment.
-     */
-   ```
+  ```javascript
+  /**
+   * This is a comment.
+   */
+  ```
 
- * **Clojure**:
+- **Clojure**:
 
-   ```clojure
-   ;;;;
-   ;; This is a comment.
-   ;;;;
-   ```
+  ```clojure
+  ;;;;
+  ;; This is a comment.
+  ;;;;
+  ```
 
- * **CoffeeScript**:
+- **CoffeeScript**:
 
-   ```coffeescript
-   ###
-   This is a comment.
-   ###
-   ```
+  ```coffeescript
+  ###
+  This is a comment.
+  ###
+  ```
 
- * **Elixir**:
+- **Elixir**:
 
-   ```elixir
-   #{
-   # This is a comment.
-   #}
-   ```
+  ```elixir
+  #{
+  # This is a comment.
+  #}
+  ```
 
- * **Erlang**:
+- **Erlang**:
 
-   ```erlang
-   %{
-   % This is a comment.
-   %}
-   ```
+  ```erlang
+  %{
+  % This is a comment.
+  %}
+  ```
 
- * **Perl**
+- **Perl**
 
-   ```perl
-   #**
-   # This is a comment.
-   #*
-   ```
+  ```perl
+  #**
+  # This is a comment.
+  #*
+  ```
 
-   ```perl
-   =pod
-   This is a comment.
-   =cut
-   ```
+  ```perl
+  =pod
+  This is a comment.
+  =cut
+  ```
 
- * **Python**
+- **Python**
 
-   ```python
-   """
-   This is a comment.
-   """
-   ```
+  ```python
+  """
+  This is a comment.
+  """
+  ```
 
- * **Ruby**
+- **Ruby**
 
-   ```ruby
-   =begin
-   This is a comment.
-   =end
-   ```
+  ```ruby
+  =begin
+  This is a comment.
+  =end
+  ```
 
 ## Plugins (extend apiDoc)
 
 apiDoc will auto include installed plugins.
 
- * [apidoc-plugin-schema](https://github.com/willfarrell/apidoc-plugin-schema) Generates and inject apidoc elements from api schemas. `npm install apidoc-plugin-schema`
+- [apidoc-plugin-schema](https://github.com/willfarrell/apidoc-plugin-schema) Generates and inject apidoc elements from api schemas. `npm install apidoc-plugin-schema`
 
 For details and an example on how to implement your own plugin, please view [apidoc-plugin-test](https://github.com/apidoc/apidoc-plugin-test).
 
@@ -180,22 +184,22 @@ apiDoc is a collaborative project. Pull requests are welcome. Please see the [CO
 
 ## Build tools
 
-* [flask-apidoc](https://pypi.python.org/pypi/flask-apidoc/) `pip install flask-apidoc`
-* [grunt-apidoc](https://github.com/apidoc/grunt-apidoc) `npm install grunt-apidoc`.
-* [gapidoc (gulp)](https://github.com/techgaun/gulp-apidoc) `npm install gapidoc`.
-* [webpack-apidoc](https://github.com/c0b41/webpack-apidoc) `npm install --save-dev webpack-apidoc`.
+- [flask-apidoc](https://pypi.python.org/pypi/flask-apidoc/) `pip install flask-apidoc`
+- [grunt-apidoc](https://github.com/apidoc/grunt-apidoc) `npm install grunt-apidoc`.
+- [gapidoc (gulp)](https://github.com/techgaun/gulp-apidoc) `npm install gapidoc`.
+- [webpack-apidoc](https://github.com/c0b41/webpack-apidoc) `npm install --save-dev webpack-apidoc`.
 
 ## Integration
 
-* [Eclipse Java apiDoc editor templates](https://github.com/skhani/eclipse_java_apiDoc_templates)
-* [Eclipse plugin](https://github.com/DWand/eclipse_pdt_apiDoc_editor_templates)
-* [Microsoft WebAPI](https://github.com/chehabz/grunt-edge-apidoc-webapi-generator)
-* [Sublime Text plugin](https://github.com/DWand/ST3_apiDocAutocompletion)
+- [Eclipse Java apiDoc editor templates](https://github.com/skhani/eclipse_java_apiDoc_templates)
+- [Eclipse plugin](https://github.com/DWand/eclipse_pdt_apiDoc_editor_templates)
+- [Microsoft WebAPI](https://github.com/chehabz/grunt-edge-apidoc-webapi-generator)
+- [Sublime Text plugin](https://github.com/DWand/ST3_apiDocAutocompletion)
 
 ## Converter
 
-* [apidoc-swagger](https://github.com/fsbahman/apidoc-swagger)
-* [apidoc-swagger-3](https://github.com/amanoooo/apidoc-swagger-3)
-* [gulp-apidoc-swagger](https://github.com/fsbahman/gulp-apidoc-swagger)
-* [Docmaster](https://github.com/bonzzy/docmaster)
-* [apidoc-markdown](https://github.com/rigwild/apidoc-markdown)
+- [apidoc-swagger](https://github.com/fsbahman/apidoc-swagger)
+- [apidoc-swagger-3](https://github.com/amanoooo/apidoc-swagger-3)
+- [gulp-apidoc-swagger](https://github.com/fsbahman/gulp-apidoc-swagger)
+- [Docmaster](https://github.com/bonzzy/docmaster)
+- [apidoc-markdown](https://github.com/rigwild/apidoc-markdown)
