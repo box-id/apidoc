@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Prism.highlightAll();
 });
 
-function init () {
+function init() {
   // the data is injected at compile time by webpack
   let api = API_DATA; // eslint-disable-line no-undef
   const apiProject = API_PROJECT; // eslint-disable-line no-undef
@@ -52,6 +52,7 @@ function init () {
   const templateProject = Handlebars.compile($('#template-project').html());
   const templateSections = Handlebars.compile($('#template-sections').html());
   const templateSidenav = Handlebars.compile($('#template-sidenav').html());
+  const templateSidenavList = Handlebars.compile($('#template-sidenav-list').html());
 
   // apiProject defaults
   const defaultTemplateOptions = {
@@ -89,6 +90,7 @@ function init () {
   $.each(apiByGroupAndName, (index, groupEntries) => {
     // get titles from the first entry of group[].name[] (name has versioning)
     let titles = [];
+
     $.each(groupEntries, (titleName, entries) => {
       const title = entries[0].title;
       if (title) {
@@ -125,13 +127,16 @@ function init () {
 
   $.each(api, (index, entry) => {
     apiGroups[entry.group] = 1;
-    apiGroupTitles[entry.group] = entry.groupTitle || entry.group;
+    apiGroupTitles[entry.group] = { title: entry.groupTitle || entry.group, group: entry.group };
     apiVersions[entry.version] = 1;
   });
 
   // sort groups
-  apiGroups = Object.keys(apiGroups);
-  apiGroups.sort();
+  apiGroups = Object.values(apiGroupTitles).sort((left, right) => {
+    return -left.title.localeCompare(right.title);
+  }).map(group => {
+    return group.group;
+  });
 
   // custom order
   if (apiProject.order) { apiGroups = sortGroupsByOrder(apiGroupTitles, apiProject.order); }
@@ -150,7 +155,7 @@ function init () {
     nav.push({
       group: group,
       isHeader: true,
-      title: apiGroupTitles[group],
+      title: apiGroupTitles[group].title,
     });
 
     // Submenu
@@ -189,7 +194,7 @@ function init () {
      * @param index where to insert items
      * @return boolean true if any good-looking (i.e. with a group identifier) <h1> tag was found
      */
-  function addNav (nav, content, index) {
+  function addNav(nav, content, index) {
     let foundLevel1 = false;
     if (!content) {
       return foundLevel1;
@@ -402,7 +407,7 @@ function init () {
      *
      * @param {Object} fields
      */
-  function _hasTypeInFields (fields) {
+  function _hasTypeInFields(fields) {
     let result = false;
     $.each(fields, name => {
       result = result || some(fields[name], item => { return item.type; });
@@ -413,7 +418,7 @@ function init () {
   /**
      * On Template changes, recall plugins.
      */
-  function initDynamic () {
+  function initDynamic() {
     // Bootstrap popover
     $('button[data-toggle="popover"]').popover().click(function (e) {
       e.preventDefault();
@@ -508,7 +513,7 @@ function init () {
   // HTML-Template specific jQuery-Functions
   //
   // Change Main Version
-  function setMainVersion (selectedVersion) {
+  function setMainVersion(selectedVersion) {
     if (typeof selectedVersion === 'undefined') {
       selectedVersion = $('#version strong').html();
     } else {
@@ -593,15 +598,32 @@ function init () {
    */
   $('[data-action="filter-search"]').on('keyup', event => {
     const query = event.currentTarget.value.toLowerCase();
-    // find all links that are endpoints
-    $('.sidenav').find('a.nav-list-item').each((index, el) => {
-      // begin by showing all so they don't stay hidden
-      $(el).show();
-      // now simply hide the ones that don't match the query
-      if (!el.innerText.toLowerCase().includes(query)) {
-        $(el).hide();
+
+    // templateSidenavList(fields)
+    const groupIndex = {};
+    const filteredNav = nav.filter((navEl) => {
+      return navEl.isHeader || navEl.group.toLowerCase().includes(query) || navEl.name.toLowerCase().includes(query) || navEl.title.toLowerCase().includes(query);
+    }).reduce((acc, navEl) => {
+      if (navEl.isHeader) {
+        groupIndex[navEl.group] = navEl;
+        groupIndex[navEl.group].elements = [];
+        acc.push(navEl);
+        return acc;
       }
+      groupIndex[navEl.group].elements.push(navEl);
+      return acc;
+    }, []).filter((group) => {
+      return group.elements.length;
+    }).flatMap((group) => {
+      const { elements, ...groupRest } = group;
+      return [groupRest, ...elements];
     });
+
+    if (filteredNav.length) {
+      $('.sidenav ').html(templateSidenavList({ nav: filteredNav }));
+    } else {
+      $('.sidenav ').html('<li class="nav-header nav-list-item" style="text-align:center"><i class="show-group">No results</i></li>');
+    }
   });
 
   /**
@@ -610,15 +632,14 @@ function init () {
   $('span.search-reset').on('click', function () {
     $('#scrollingNav .sidenav-search input.search')
       .val('')
-      .focus()
-    ;
+      .focus();
     $('.sidenav').find('a.nav-list-item').show();
   });
 
   /**
      * Change version of an article to compare it to an other version.
      */
-  function changeVersionCompareTo (e) {
+  function changeVersionCompareTo(e) {
     e.preventDefault();
 
     const $root = $(this).parents('article');
@@ -700,7 +721,7 @@ function init () {
   /**
      * Compare all currently selected Versions with their predecessor.
      */
-  function changeAllVersionCompareTo (e) {
+  function changeAllVersionCompareTo(e) {
     e.preventDefault();
     $('article:visible .versions').each(function () {
       const $root = $(this).parents('article');
@@ -718,7 +739,7 @@ function init () {
   /**
      * Add article settings.
      */
-  function addArticleSettings (fields, entry) {
+  function addArticleSettings(fields, entry) {
     // add unique id
     // TODO: replace all group-name-version in template with id.
     fields.id = fields.article.group + '-' + fields.article.name + '-' + fields.article.version;
@@ -751,7 +772,7 @@ function init () {
   /**
      * Render Article.
      */
-  function renderArticle (group, name, version) {
+  function renderArticle(group, name, version) {
     let entry = {};
     $.each(apiByGroupAndName[group][name], function (index, currentEntry) {
       if (currentEntry.version === version) { entry = currentEntry; }
@@ -769,7 +790,7 @@ function init () {
   /**
      * Render original Article and remove the current visible Article.
      */
-  function resetArticle (group, name, version) {
+  function resetArticle(group, name, version) {
     const $root = $('article[data-group=\'' + group + '\'][data-name=\'' + name + '\']:visible');
     const content = renderArticle(group, name, version);
 
@@ -791,7 +812,7 @@ function init () {
      * @param  {String}   splitBy
      * @return {String[]} Custom ordered list.
      */
-  function sortByOrder (elements, order, splitBy) {
+  function sortByOrder(elements, order, splitBy) {
     const results = [];
     order.forEach(function (name) {
       if (splitBy) {
@@ -819,11 +840,11 @@ function init () {
      * @param  {String[]} order
      * @return {String[]} Custom ordered list.
      */
-  function sortGroupsByOrder (groups, order) {
+  function sortGroupsByOrder(groups, order) {
     const results = [];
     order.forEach(sortKey => {
       Object.keys(groups).forEach(name => {
-        if (groups[name].replace(/_/g, ' ') === sortKey) { results.push(name); }
+        if (groups[name].title.replace(/_/g, ' ') === sortKey) { results.push(name); }
       });
     });
     // Append all other entries that are not defined in order
