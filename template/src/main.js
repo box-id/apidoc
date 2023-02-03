@@ -99,7 +99,7 @@ function init() {
       }
     });
     // sort by name ASC
-    titles.sort();
+    titles = titles.sort((left, right) => -left.localeCompare(right));
 
     // custom order
     if (apiProject.order) { titles = sortByOrder(titles, apiProject.order, '#~#'); }
@@ -133,7 +133,10 @@ function init() {
 
   // sort groups
   apiGroups = Object.values(apiGroupTitles).sort((left, right) => {
-    return -left.title.localeCompare(right.title);
+    // force the titles starting with a "#" to the bottom
+    if (left.title.indexOf('#') === 0) return 1;
+    if (right.title.indexOf('#') === 0) return -1;
+    return left.title.localeCompare(right.title);
   }).map(group => {
     return group.group;
   });
@@ -537,10 +540,11 @@ function init() {
         // enable Article
         document.querySelector(`article[data-group="${group}"][data-name="${name}"][data-version="${version}"]`).classList.remove('hide');
         // enable Navigation
-        document.querySelector(`#sidenav li[data-group="${group}"][data-name="${name}"][data-version="${version}"]`).classList.remove('hide');
-        document.querySelector(`#sidenav li.nav-header[data-group="${group}"]`).classList.remove('hide');
       }
     });
+    // rerender navigation with current query
+    const currQuery = $('[data-action="filter-search"]').val();
+    filterMenu(currQuery);
 
     // show 1st equal or lower Version of each entry
     $('article[data-version]').each(function (index) {
@@ -596,12 +600,18 @@ function init() {
   /**
    * Filter search
    */
+
+  function isVersion(navEl, minVersion) {
+    if (navEl.version == null) return true;
+    return semver.lte(navEl.version, minVersion);
+  }
+
   function isMatching(navEl, query) {
     return navEl.isHeader || navEl.group.toLowerCase().includes(query) || navEl.name.toLowerCase().includes(query) || navEl.title.toLowerCase().includes(query);
   }
-  $('[data-action="filter-search"]').on('keyup', event => {
-    const query = event.currentTarget.value;
 
+  function filterMenu(query) {
+    const currVersion = $('#version strong').html();
     const queryElements = query.split('+').map(queryEl => {
       return queryEl.trim().toLowerCase();
     }).filter((queryEl) => queryEl.length);
@@ -611,7 +621,7 @@ function init() {
 
     const filteredNav = nav.filter((navEl) => {
       return queryElements.every((query) => {
-        return isMatching(navEl, query);
+        return isMatching(navEl, query) && isVersion(navEl, currVersion);
       });
     }).reduce((acc, navEl) => {
       if (navEl.isHeader) {
@@ -634,6 +644,11 @@ function init() {
     } else {
       $('.sidenav ').html('<li class="nav-header nav-list-item" style="text-align:center"><i class="show-group">No results</i></li>');
     }
+  }
+
+  $('[data-action="filter-search"]').on('keyup', event => {
+    const query = event.currentTarget.value;
+    filterMenu(query);
   });
 
   /**
@@ -643,6 +658,7 @@ function init() {
     $('#scrollingNav .sidenav-search input.search')
       .val('')
       .focus();
+    filterMenu('');
     $('.sidenav').find('a.nav-list-item').show();
   });
 
@@ -719,7 +735,7 @@ function init() {
       $content.find('.versions li.version a').on('click', changeVersionCompareTo);
 
       // select navigation
-      $('#sidenav li[data-group=\'' + group + '\'][data-name=\'' + name + '\'][data-version=\'' + currentVersion + '\']').addClass('has-modifications');
+      // $('#sidenav li[data-group=\'' + group + '\'][data-name=\'' + name + '\'][data-version=\'' + currentVersion + '\']').addClass('has-modifications');
 
       $root.remove();
       // TODO: on change main version or select the highest version re-render

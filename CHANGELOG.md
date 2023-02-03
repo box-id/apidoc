@@ -1,12 +1,18 @@
 # apiDoc Changelog
 
+### 0.56.1 (Fork by box-id)
+
+- Template: fixed navigation sorting
+- Template: fixed search clear
+- Template: handle current version in search
+
 ### 0.56.0 (Fork by box-id)
 
-- Added simple function to search by multiple elements with a +
+- Template: Added simple function to search by multiple elements with a +
 
 ### 0.55.1 (Fork by box-id)
 
-- Optimized template for a better search and oder by group title
+- Template: Optimized template for a better search and oder by group title
 
 ### 0.54.1 (Fork by box-id)
 
